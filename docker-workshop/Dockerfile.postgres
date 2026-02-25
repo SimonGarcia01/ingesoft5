@@ -1,0 +1,16 @@
+FROM postgres:16.12
+
+WORKDIR /home
+
+COPY ini_db.sh .
+
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=password
+
+ENV APP_DB_USER=postgres
+ENV APP_DB_PASSWORD=password
+ENV APP_DB_NAME=postgres
+
+EXPOSE 5432
+
+RUN chmod +x ini_db.sh
