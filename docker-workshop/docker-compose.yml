@@ -1,0 +1,75 @@
+services:
+  proxy:
+    build:
+      context: proxy
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - app
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 512M
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    networks:
+      - app
+    expose:
+      - 8080
+    depends_on:
+      - db
+    environment:
+      RDS_HOSTNAME: db
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 206M
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy: 
+        condition: on-failure
+
+  db:
+    container_name: postgres_db
+    image: postgres
+    networks:
+      - app
+    restart: on-failure
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      APP_DB_USER: postgres
+      APP_DB_PASSWORD: password
+      APP_DB_NAME: postgres
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 512M
+
+networks:
+  app:
+    ipam:
+      driver: bridge
+      config:
+        - subnet: 192.168.200.0/24
+
+volumes:
+  postgres_data:
