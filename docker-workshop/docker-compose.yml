@@ -19,7 +19,7 @@ services:
 
   backend:
     build:
-      context: backend
+      context: golang
       dockerfile: Dockerfile
     networks:
       - app
@@ -67,7 +67,7 @@ services:
 networks:
   app:
     ipam:
-      driver: bridge
+      driver: default
       config:
         - subnet: 192.168.200.0/24
 

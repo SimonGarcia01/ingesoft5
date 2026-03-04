@@ -13,4 +13,4 @@ FROM golang:1.24.0-alpine
 
 COPY --from=builder /app/server /app/server
 
-CMD ["./server"]
+CMD ["/app/server"]
