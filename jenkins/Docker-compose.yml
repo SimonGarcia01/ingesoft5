@@ -1,13 +1,29 @@
 services:
   jenkins:
-    container_name: jenkins_container
+    container_name: jenkins_controller
     image: jenkins/jenkins:latest
-    
+    user: root
     ports:
       - "8080:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
+    restart: on-failure
+    networks:
+      - jenkins_network
+    
+  maven-agent:
+    container_name: jenkins_agent
+    build:
+      context: .
+      dockerfile: Dockerfile.Agent
+    depends_on:
+      - jenkins
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_AGENT_NAME=maven-agent
+      - JENKINS_SECRET=your_agent_secret
+      - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
     restart: on-failure
     networks:
       - jenkins_network
